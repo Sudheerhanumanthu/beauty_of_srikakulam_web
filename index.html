@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Srikakulam Beauty City</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4CAF50" />
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      color: #4CAF50;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Srikakulam Beauty City</h1>
+  <p>You've clicked the button:</p>
+  <h2 id="count">0</h2>
+  <button onclick="increment()">Click Me!</button>
+
+  <br><br>
+
+  <button id="installBtn" hidden>Add to Home Screen</button>
+
+  <script>
+    // Click counter logic
+    let count = localStorage.getItem('clickCount') || 0;
+    document.getElementById('count').textContent = count;
+
+    function increment() {
+      count++;
+      document.getElementById('count').textContent = count;
+      localStorage.setItem('clickCount', count);
+    }
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('Service Worker registered!'))
+        .catch(err => console.log('Service Worker error:', err));
+    }
+
+    // Handle install prompt
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('beforeinstallprompt fired');
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBtn').hidden = false;
+    });
+
+    document.getElementById('installBtn').addEventListener('click', () => {
+      document.getElementById('installBtn').hidden = true;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        deferredPrompt = null;
+      });
+    });
+  </script>
+</body>
+</html>
